@@ -1,0 +1,4 @@
+import {NextRequest,NextResponse} from "next/server";
+import {authenticatedClient} from "@/lib/supabase/server";
+import {validCoordinates} from "@/lib/utils/validation";
+export async function POST(req:NextRequest){try{const {client,user}=await authenticatedClient(req);if(user.is_anonymous || !user.phone)return NextResponse.json({error:"Citizen login required."},{status:401});const {lat,lng}=await req.json();if(typeof lat!=="number" || typeof lng!=="number" || !validCoordinates(lat,lng))return NextResponse.json({error:"Coordinates are invalid."},{status:400});const {data,error}=await client.rpc("check_nearby_complaints",{lat,lng,radius_meters:15});if(error)throw error;return NextResponse.json({hasNearby:data.length>0,complaints:data});}catch{return NextResponse.json({error:"Unable to check nearby complaints. Please log in and try again."},{status:400});}}

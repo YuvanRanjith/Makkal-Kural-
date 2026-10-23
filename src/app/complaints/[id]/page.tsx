@@ -1,0 +1,22 @@
+"use client";
+import { useCallback, useEffect, useState } from "react";
+import {ArrowLeft,ThumbsUp} from "lucide-react";
+import EvidenceImage from "@/components/ui/EvidenceImage";
+import {EmptyState,LoadingState} from "@/components/ui/Feedback";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import Header from "@/components/ui/Header";
+import ErrorNotice from "@/components/ui/ErrorNotice";
+import StatusBadge from "@/components/ui/StatusBadge";
+import { getComplaint, endorseComplaint } from "@/lib/supabase/queries";
+import { getOrCreateUserId } from "@/lib/utils/session";
+import { errorMessage, validUuid } from "@/lib/utils/validation";
+import type { Complaint } from "@/types/ticket";
+const MapOverlay = dynamic(() => import("@/components/ui/MapOverlay"), { ssr: false });
+export default function Page({ params }: { params: { id: string } }) {
+  const [complaint,setComplaint] = useState<Complaint | null>(null), [loading,setLoading] = useState(true), [error,setError] = useState(""), [busy,setBusy] = useState(false), [notice,setNotice] = useState("");
+  const load = useCallback(async () => { setLoading(true);setError("");try { if (!validUuid(params.id)) {setComplaint(null);return;} setComplaint(await getComplaint(params.id)); } catch(e) {setError(errorMessage(e));} finally {setLoading(false);} }, [params.id]);
+  useEffect(() => {void load();}, [load]);
+  async function endorse() {setBusy(true);setNotice("");try {const count = await endorseComplaint(params.id, await getOrCreateUserId());setComplaint(c => c ? {...c,upvote_count:count} : c);setNotice("Your endorsement is recorded. Each account can endorse once.");}catch(e){setNotice(errorMessage(e));}finally{setBusy(false);}}
+  return <><Header /><main id="main-content" className="page max-w-3xl"><Link href="/complaints" className="muted-link inline-flex min-h-11 items-center gap-2"><ArrowLeft size={16} aria-hidden="true"/>Back to community issues</Link>{error ? <ErrorNotice message={error} onRetry={load} /> : loading ? <LoadingState label="Loading report..."/> : !complaint ? <EmptyState title="Report not found" description="This report may no longer be available. Explore other community issues or check My reports." action="View community issues" href="/complaints"/> : <><div className="my-5 flex flex-wrap justify-between items-center gap-3"><h1>{complaint.category} report</h1><StatusBadge status={complaint.status} /></div><p className="mb-4 break-all text-sm">Receipt ID: <strong className="font-mono text-xs text-slate-500">{complaint.complaint_id}</strong></p><div className="grid gap-4 sm:grid-cols-2"><figure><EvidenceImage zoom src={complaint.image_url} alt="Reported issue" className="h-64 w-full object-contain rounded-2xl" /><figcaption className="mt-2 text-xs font-medium text-slate-500">Original report</figcaption></figure>{complaint.repair_image_url && <figure><img src={complaint.repair_image_url} alt="Submitted repair proof" className="w-full rounded-xl" /><figcaption>Latest repair proof</figcaption></figure>}</div><p className="my-5 whitespace-pre-wrap">{complaint.description || "No description provided."}</p><dl className="surface grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-x-4 gap-y-4 p-5 text-sm [&_dt]:text-slate-500 [&_dd]:break-words [&_dd]:font-medium"><dt>Ward</dt><dd>{complaint.ward_name || "Pending staff review"}</dd><dt>Submitted</dt><dd>{new Date(complaint.created_at).toLocaleString("en-IN")}</dd><dt>Endorsements</dt><dd>{complaint.upvote_count}</dd>{complaint.verification_deadline && <><dt>Verification deadline</dt><dd>{new Date(complaint.verification_deadline).toLocaleString("en-IN")}</dd></>}{complaint.resolved_at && <><dt>Resolved</dt><dd>{new Date(complaint.resolved_at).toLocaleString("en-IN")}</dd></>}</dl><div className="my-5"><h2 className="mb-2 font-semibold">Issue location</h2><MapOverlay lat={complaint.latitude} lng={complaint.longitude} readOnly /><p className="text-sm text-slate-500">{complaint.latitude.toFixed(5)}, {complaint.longitude.toFixed(5)}</p></div>{["OPEN","IN_PROGRESS"].includes(complaint.status) && <button className="primary" disabled={busy} onClick={endorse}>{busy ? "Recording…" : <><ThumbsUp size={16} aria-hidden="true"/>Endorse this issue</>}</button>}{complaint.status === "PENDING_VERIFICATION" && <Link className="primary inline-block" href="/audit">Verify this repair</Link>}<p role="status" className="mt-3">{notice}</p></>}</main></>;
+}

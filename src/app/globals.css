@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+ html { color-scheme: light; -webkit-tap-highlight-color: transparent; }
+ body { @apply m-0 bg-slate-50 text-slate-900 antialiased; font-family: Arial, Helvetica, sans-serif; background-image: radial-gradient(ellipse at top left, #e8f5f1 0, transparent 650px); }
+ h1 { @apply text-3xl font-bold tracking-tight sm:text-4xl; line-height:1.15; }
+ h2 { @apply tracking-tight; }
+ button,a,input,select,textarea { @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700; }
+ button,a { touch-action:manipulation; }
+ button { @apply transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
+ input,select,textarea { @apply block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-base text-slate-900 shadow-sm; }
+ input::placeholder,textarea::placeholder { @apply text-slate-400; }
+ input:hover,select:hover,textarea:hover { @apply border-slate-400; }
+ input:focus,select:focus,textarea:focus { @apply border-teal-600; }
+ textarea { resize:vertical; }
+ label { @apply block text-sm font-medium text-slate-700; }
+ label input,label select,label textarea { @apply mt-2; }
+ ::selection { background:#bce8df; color:#123e38; }
+}
+@layer components {
+ .page { @apply mx-auto w-full max-w-6xl px-4 pt-7 sm:px-6 sm:pt-10; padding-bottom:calc(7rem + env(safe-area-inset-bottom)); }
+ .intro { @apply mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base sm:leading-7; }
+ .eyebrow { @apply mb-3 text-xs font-bold uppercase tracking-[.16em] text-teal-700; }
+ .primary { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 active:bg-teal-900; }
+ .secondary { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-teal-600 hover:bg-teal-50; }
+ .surface { @apply rounded-2xl border border-slate-200 bg-white shadow-sm; }
+ .muted-link { @apply text-sm font-semibold text-primary underline-offset-4 hover:underline; }
+ .nav-label { @apply text-[10px] font-semibold sm:text-xs lg:text-sm; }
+ .step-dot { @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold; }
+}
+@media(min-width:1024px){ .page { padding-bottom:4rem; } }
+@media(prefers-reduced-motion:reduce){ *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+.leaflet-container { font-family:inherit; z-index:0; }

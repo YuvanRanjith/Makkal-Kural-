@@ -1,0 +1,3 @@
+import {CATEGORIES} from '@/types/ticket';
+import {Check} from 'lucide-react';
+export default function CategoryChips({selected,onSelect}:{selected:string;onSelect:(category:string)=>void}){return <div className="flex flex-wrap gap-2">{CATEGORIES.map(category=><button key={category} type="button" aria-pressed={selected===category} onClick={()=>onSelect(category)} className={'inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-sm font-medium transition-colors '+(selected===category?'border-teal-700 bg-teal-50 text-teal-800':'border-slate-200 bg-white text-slate-600 hover:border-teal-400')}>{selected===category && <Check size={15} aria-hidden="true"/>}{category}</button>)}</div>;}

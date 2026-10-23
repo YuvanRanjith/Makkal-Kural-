@@ -1,0 +1,18 @@
+node_modules/
+.next/
+.env*
+!.env.example
+*.tsbuildinfo
+coverage/
+.next-*/
+
+# Local logs, editor files and private credentials
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.pem
+*.key
+.supabase/
+supabase/.temp/
