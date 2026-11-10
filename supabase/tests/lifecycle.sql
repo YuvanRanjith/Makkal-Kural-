@@ -76,7 +76,7 @@ do $$ declare uid uuid; cid uuid; begin
  perform set_config('request.jwt.claims',jsonb_build_object('sub',uid::text,'role','authenticated')::text,true);
  perform public.cast_audit_vote(cid,uid,true,null);
  end loop;
-end $;
+end $$;
 select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000001","role":"authenticated"}',true);
 select pg_temp.assert_ok((select status='RESOLVED' and resolved_at is not null and audit_round=2 from public.complaint_details where request_id='00000000-0000-4000-8000-000000000011'),'three confirmations resolve second repair');
 select pg_temp.assert_ok((select resolved_count=1 and health_score=100 from public.get_ward_heatmap_data() where ward_id=999999),'heatmap aggregate');
